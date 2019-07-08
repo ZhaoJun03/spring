@@ -111,7 +111,7 @@ abstract class ConfigurationClassUtils {
 				return false;
 			}
 		}
-
+		//如果有@Configuration注解，就把CONFIGURATION_CLASS_ATTRIBUTE设置成CONFIGURATION_CLASS_FULL
 		if (isFullConfigurationCandidate(metadata)) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_FULL);
 		}
@@ -162,19 +162,19 @@ abstract class ConfigurationClassUtils {
 	 * configuration class, just registering it and scanning it for {@code @Bean} methods
 	 */
 	public static boolean isLiteConfigurationCandidate(AnnotationMetadata metadata) {
-		// Do not consider an interface or an annotation...
+		// 不考虑接口或注释
 		if (metadata.isInterface()) {
 			return false;
 		}
 
-		// Any of the typical annotations found?
+		//Component，ComponentScan，Import，ImportResource四个来匹配
 		for (String indicator : candidateIndicators) {
 			if (metadata.isAnnotated(indicator)) {
 				return true;
 			}
 		}
 
-		// Finally, let's look for @Bean methods...
+		// 最后，处理@Bean的方法
 		try {
 			return metadata.hasAnnotatedMethods(Bean.class.getName());
 		}

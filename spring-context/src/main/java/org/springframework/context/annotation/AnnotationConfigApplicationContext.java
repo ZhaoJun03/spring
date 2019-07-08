@@ -62,7 +62,18 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 * through {@link #register} calls and then manually {@linkplain #refresh refreshed}.
 	 */
 	public AnnotationConfigApplicationContext() {
+		/**
+		 * 在里面会把spring内部的处理器的beanDefinition存入map中
+		 * eg:
+		 * org.springframework.context.annotation.internalConfigurationAnnotationProcessor--->ConfigurationClassPostProcessor
+		 * org.springframework.context.annotation.internalAutowiredAnnotationProcessor--->AutowiredAnnotationBeanPostProcessor
+		 * ......很有几个
+		 */
 		this.reader = new AnnotatedBeanDefinitionReader(this);
+		/**
+		 * 类路径下的beanDefinition的扫描器
+		 * 扫描@cpmponent(@controller @service @repository三个继承了@component) @named(JSR-250) @managedBean(JSR-330)
+		 */
 		this.scanner = new ClassPathBeanDefinitionScanner(this);
 	}
 
@@ -79,12 +90,16 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	/**
 	 * Create a new AnnotationConfigApplicationContext, deriving bean definitions
 	 * from the given annotated classes and automatically refreshing the context.
+	 *
 	 * @param annotatedClasses one or more annotated classes,
-	 * e.g. {@link Configuration @Configuration} classes
+	 *                         e.g. {@link Configuration @Configuration} classes
 	 */
 	public AnnotationConfigApplicationContext(Class<?>... annotatedClasses) {
+		//构造方法，进行AnnotatedBeanDefinitionReader和ClassPathBeanDefinitionScanner两个属性的赋值
 		this();
+		//注册传入的配置类  将其beanDefinition保存在map里
 		register(annotatedClasses);
+		//刷新或者创建容器 （重头戏）
 		refresh();
 	}
 
