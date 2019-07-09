@@ -213,12 +213,11 @@ class ConfigurationClassParser {
 		return this.configurationClasses.keySet();
 	}
 
-
 	protected void processConfigurationClass(ConfigurationClass configClass) throws IOException {
+		//判断是否需要解析 有没有@conditional
 		if (this.conditionEvaluator.shouldSkip(configClass.getMetadata(), ConfigurationPhase.PARSE_CONFIGURATION)) {
 			return;
 		}
-
 		ConfigurationClass existingClass = this.configurationClasses.get(configClass);
 		if (existingClass != null) {
 			if (configClass.isImported()) {
@@ -227,22 +226,18 @@ class ConfigurationClassParser {
 				}
 				// Otherwise ignore new imported config class; existing non-imported class overrides it.
 				return;
-			}
-			else {
+			} else {
 				// Explicit bean definition found, probably replacing an import.
 				// Let's remove the old one and go with the new one.
 				this.configurationClasses.remove(configClass);
 				this.knownSuperclasses.values().removeIf(configClass::equals);
 			}
 		}
-
 		// Recursively process the configuration class and its superclass hierarchy.
 		SourceClass sourceClass = asSourceClass(configClass);
 		do {
 			sourceClass = doProcessConfigurationClass(configClass, sourceClass);
-		}
-		while (sourceClass != null);
-
+		} while (sourceClass != null);
 		this.configurationClasses.put(configClass, configClass);
 	}
 
@@ -257,13 +252,12 @@ class ConfigurationClassParser {
 	@Nullable
 	protected final SourceClass doProcessConfigurationClass(ConfigurationClass configClass, SourceClass sourceClass)
 			throws IOException {
-
 		if (configClass.getMetadata().isAnnotated(Component.class.getName())) {
 			//首先递归处理任何成员（嵌套）类
 			processMemberClasses(configClass, sourceClass);
 		}
 
-		// Process any @PropertySource annotations
+		//处理@PropertySource注解
 		for (AnnotationAttributes propertySource : AnnotationConfigUtils.attributesForRepeatable(
 				sourceClass.getMetadata(), PropertySources.class,
 				org.springframework.context.annotation.PropertySource.class)) {
@@ -276,7 +270,7 @@ class ConfigurationClassParser {
 			}
 		}
 
-		// 处理任何@ComponentScan注释
+		//处理所有@ComponentScan注释
 		Set<AnnotationAttributes> componentScans = AnnotationConfigUtils.attributesForRepeatable(
 				sourceClass.getMetadata(), ComponentScans.class, ComponentScan.class);
 		if (!componentScans.isEmpty() &&
@@ -313,16 +307,17 @@ class ConfigurationClassParser {
 			}
 		}
 
-		// Process individual @Bean methods
+		// 处理@Bean注解的方法
 		Set<MethodMetadata> beanMethods = retrieveBeanMethodMetadata(sourceClass);
 		for (MethodMetadata methodMetadata : beanMethods) {
+			//将解析出的所有@Bean注解方法添加到configClass配置类信息中
 			configClass.addBeanMethod(new BeanMethod(methodMetadata, configClass));
 		}
 
-		// Process default methods on interfaces
+		// 处理接口中所有添加@Bean注解的方法，内部通过遍历所有接口，解析得到@Bean注解方法，并添加到configClass配置类信息中
 		processInterfaces(configClass, sourceClass);
 
-		// Process superclass, if any
+		// 如果有父类，则返回父类，递归执行doProcessConfigurationClass()解析父类
 		if (sourceClass.getMetadata().hasSuperClass()) {
 			String superclass = sourceClass.getMetadata().getSuperClassName();
 			if (superclass != null && !superclass.startsWith("java") &&
@@ -338,7 +333,7 @@ class ConfigurationClassParser {
 	}
 
 	/**
-	 * Register member (nested) classes that happen to be configuration classes themselves.
+	 * 注册配置类的成员类
 	 */
 	private void processMemberClasses(ConfigurationClass configClass, SourceClass sourceClass) throws IOException {
 		Collection<SourceClass> memberClasses = sourceClass.getMemberClasses();

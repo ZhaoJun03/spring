@@ -1,10 +1,12 @@
 package com.zhaojun.config;
 
 import com.zhaojun.bean.Calculator;
+import com.zhaojun.bean.Dog;
 import com.zhaojun.bean.Person;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 /**
  * @author ZhaoJun
@@ -23,6 +25,12 @@ public class MyConfig {
 	@Bean
 	public Calculator calculator() {
 		return new Calculator();
+	}
+
+	@Lazy
+	@Bean
+	public Dog dog() {
+		return new Dog();
 	}
 
 }
