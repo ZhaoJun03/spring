@@ -3,10 +3,8 @@ package com.zhaojun.config;
 import com.zhaojun.bean.Calculator;
 import com.zhaojun.bean.Dog;
 import com.zhaojun.bean.Person;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
+import com.zhaojun.custom.CustomFactoryBean;
+import org.springframework.context.annotation.*;
 
 /**
  * @author ZhaoJun
@@ -15,6 +13,7 @@ import org.springframework.context.annotation.Lazy;
 
 @Configuration
 @ComponentScan("com.zhaojun")
+@Import(CustomFactoryBean.class)
 public class MyConfig {
 
 	@Bean
@@ -25,12 +24,6 @@ public class MyConfig {
 	@Bean
 	public Calculator calculator() {
 		return new Calculator();
-	}
-
-	@Lazy
-	@Bean
-	public Dog dog() {
-		return new Dog();
 	}
 
 }

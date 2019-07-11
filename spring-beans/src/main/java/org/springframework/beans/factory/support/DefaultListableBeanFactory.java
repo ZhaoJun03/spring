@@ -177,6 +177,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	@Nullable
 	private volatile String[] frozenBeanDefinitionNames;
 
+	//是否可以为所有的bean缓存beanDefinition元数据
 	/** Whether bean definition metadata may be cached for all beans. */
 	private volatile boolean configurationFrozen = false;
 
@@ -496,7 +497,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	private String[] doGetBeanNamesForType(ResolvableType type, boolean includeNonSingletons, boolean allowEagerInit) {
 		List<String> result = new ArrayList<>();
 
-		// Check all bean definitions.
+		// 检查所有的beanDefinition
 		for (String beanName : this.beanDefinitionNames) {
 			// Only consider bean as eligible if the bean name is not defined as alias for some other bean.
 			//beanName没有定义为其他bean的别名，就是合格的
@@ -818,30 +819,31 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		// While this may not be part of the regular factory bootstrap, it does otherwise work fine.
 		List<String> beanNames = new ArrayList<>(this.beanDefinitionNames);
 
-		// Trigger initialization of all non-lazy singleton beans...
+		// 所有非懒加载的bean触发实例化
 		for (String beanName : beanNames) {
 			RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
+			//不是抽象类 && 是单例 && 不是懒加载
 			if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
+				//factoryBean
 				if (isFactoryBean(beanName)) {
+					//获取factoryBean时候需要在beanName前面加上&符号
 					Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
 					if (bean instanceof FactoryBean) {
-						final FactoryBean<?> factory = (FactoryBean<?>) bean;
+						final FactoryBean<?> factory = (FactoryBean<?>)bean;
 						boolean isEagerInit;
 						if (System.getSecurityManager() != null && factory instanceof SmartFactoryBean) {
-							isEagerInit = AccessController.doPrivileged((PrivilegedAction<Boolean>)
-											((SmartFactoryBean<?>) factory)::isEagerInit,
+							isEagerInit = AccessController.doPrivileged(
+									(PrivilegedAction<Boolean>)((SmartFactoryBean<?>)factory)::isEagerInit,
 									getAccessControlContext());
-						}
-						else {
-							isEagerInit = (factory instanceof SmartFactoryBean &&
-									((SmartFactoryBean<?>) factory).isEagerInit());
+						} else {
+							isEagerInit = (factory instanceof SmartFactoryBean && ((SmartFactoryBean<?>)factory)
+									.isEagerInit());
 						}
 						if (isEagerInit) {
 							getBean(beanName);
 						}
 					}
-				}
-				else {
+				} else {
 					getBean(beanName);
 				}
 			}

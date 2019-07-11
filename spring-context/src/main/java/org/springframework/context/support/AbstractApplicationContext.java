@@ -581,8 +581,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			}
 
 			finally {
-				// Reset common introspection caches in Spring's core, since we
-				// might not ever need metadata for singleton beans anymore...
+				// 清除Spring在初始化的阶段的一些缓存 主要是一些元数据的map的clear操作
 				resetCommonCaches();
 			}
 		}
@@ -892,7 +891,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		// Allow for caching all bean definition metadata, not expecting further changes.
 		beanFactory.freezeConfiguration();
 
-		// Instantiate all remaining (non-lazy-init) singletons.
+		// 实例化所有剩下的非懒加载的单例bean
 		beanFactory.preInstantiateSingletons();
 	}
 

@@ -19,6 +19,9 @@ public class Test {
 		Calculator calculator = (Calculator)context.getBean("calculator");
 		int result = calculator.div(5, 2);
 		System.out.println(result);
-		context.getBeanDefinitionNames();
+		String[] beanDefinitionNames = context.getBeanDefinitionNames();
+		for (String beanDefinitionName : beanDefinitionNames) {
+			System.out.println(beanDefinitionName);
+		}
 	}
 }
